@@ -7,11 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Request } from 'express';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -24,8 +26,8 @@ export class UsersController {
   }
 
   @Get('me')
-  findAll() {
-    return;
+  findMe(@Req() req: Request) {
+    return req.user;
   }
 
   @Get(':id')
