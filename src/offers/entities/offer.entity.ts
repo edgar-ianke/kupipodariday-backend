@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Wish } from '../../wishes/entities/wish.entity';
-import { BaseEntity } from '../../base-entity/base.entity';
+import { BaseEntity } from '../../common/base.entity';
 
 @Entity()
 export class Offer extends BaseEntity {

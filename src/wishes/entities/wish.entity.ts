@@ -1,8 +1,8 @@
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
-import { IsInt, IsUrl, MaxLength, MinLength } from 'class-validator';
+import { IsUrl, MaxLength, MinLength } from 'class-validator';
 import { User } from '../../users/entities/user.entity';
 import { Offer } from '../../offers/entities/offer.entity';
-import { BaseEntity } from '../../base-entity/base.entity';
+import { BaseEntity } from '../../common/base.entity';
 
 @Entity()
 export class Wish extends BaseEntity {
@@ -20,11 +20,9 @@ export class Wish extends BaseEntity {
   image: string;
 
   @Column({ type: 'float' })
-  @IsInt()
   price: number;
 
   @Column({ type: 'float' })
-  @IsInt()
   raised: number;
 
   @Column()

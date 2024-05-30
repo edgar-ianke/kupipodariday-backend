@@ -6,23 +6,25 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { WishesService } from './wishes.service';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
+import { Request } from 'express';
 
 @Controller('wishes')
 export class WishesController {
   constructor(private readonly wishesService: WishesService) {}
 
   @Post()
-  create(@Body() createWishDto: CreateWishDto) {
-    return this.wishesService.create(createWishDto);
+  create(@Req() req: Request, @Body() createWishDto: CreateWishDto) {
+    return this.wishesService.create(createWishDto, req.user);
   }
 
   @Get()
   findAll() {
-    return this.wishesService.findAll();
+    return;
   }
 
   @Get(':id')

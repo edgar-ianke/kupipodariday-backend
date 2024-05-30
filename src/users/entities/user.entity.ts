@@ -9,7 +9,7 @@ import {
 import { Wish } from '../../wishes/entities/wish.entity';
 import { Offer } from '../../offers/entities/offer.entity';
 import { Wishlist } from '../../wishlists/entities/wishlist.entity';
-import { BaseEntity } from '../../base-entity/base.entity';
+import { BaseEntity } from '../../common/base.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -37,6 +37,7 @@ export class User extends BaseEntity {
   email: string;
 
   @Column()
+  @IsNotEmpty()
   password: string;
 
   @OneToMany(() => Wish, (wish) => wish.owner)
