@@ -6,18 +6,28 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { WishlistsService } from './wishlists.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Request } from 'express';
+import { User } from '../users/entities/user.entity';
 
-@Controller('wishlists')
+@Controller('wishlistlists')
+@UseGuards(JwtAuthGuard)
 export class WishlistsController {
   constructor(private readonly wishlistsService: WishlistsService) {}
 
   @Post()
-  create(@Body() createWishlistDto: CreateWishlistDto) {
-    return this.wishlistsService.create(createWishlistDto);
+  create(
+    @Body() createWishlistDto: CreateWishlistDto,
+    @Req() req: Request & { user: User },
+  ) {
+    return this.wishlistsService.create(createWishlistDto, req.user.id);
   }
 
   @Get()
@@ -31,15 +41,24 @@ export class WishlistsController {
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
+    @Req() req: Request & { user: User },
     @Body() updateWishlistDto: UpdateWishlistDto,
   ) {
+    const wishlist = await this.wishlistsService.findOne(+id);
+    if (wishlist.owner.id !== req.user.id) {
+      throw new ForbiddenException('У вас нет прав на данную операцию');
+    }
     return this.wishlistsService.update(+id, updateWishlistDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @Req() req: Request & { user: User }) {
+    const wishlist = await this.wishlistsService.findOne(+id);
+    if (wishlist.owner.id !== req.user.id) {
+      throw new ForbiddenException('У вас нет прав на данную операцию');
+    }
     return this.wishlistsService.remove(+id);
   }
 }

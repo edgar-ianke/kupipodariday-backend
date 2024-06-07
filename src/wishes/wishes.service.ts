@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateWishDto } from './dto/create-wish.dto';
 import { UpdateWishDto } from './dto/update-wish.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,11 +15,10 @@ export class WishesService {
   ) {}
   async create(createWishDto: CreateWishDto, userId) {
     const user = await this.usersService.findOne(userId);
-    const wish = await this.wishesRepository.create({
+    return await this.wishesRepository.create({
       ...createWishDto,
       owner: user,
     });
-    return await this.wishesRepository.save(wish);
   }
 
   async findByIds(ids: number[]) {
@@ -34,6 +33,10 @@ export class WishesService {
   }
 
   async update(id: number, updateWishDto: UpdateWishDto) {
+    const wish = await this.findOne(id);
+    if (updateWishDto.price && wish.offers.length > 0) {
+      throw new ForbiddenException('Стоимость подарка нельзя изменить');
+    }
     await this.wishesRepository.update(id, updateWishDto);
     return this.findOne(id);
   }
@@ -41,5 +44,32 @@ export class WishesService {
   async remove(id: number) {
     const wish = await this.findOne(id);
     return await this.wishesRepository.remove(wish);
+  }
+
+  async getLastWishes() {
+    return await this.wishesRepository.find({
+      order: { createdAt: 'DESC' },
+      take: 40,
+      relations: ['owner', 'offers'],
+    });
+  }
+  async getTopWishes() {
+    return await this.wishesRepository.find({
+      order: { copied: 'DESC' },
+      take: 20,
+      relations: ['owner', 'offers'],
+    });
+  }
+  async copyWish(wishId: number, userId: number) {
+    const wish = await this.findOne(wishId);
+    await this.wishesRepository.save({ ...wish, copied: wish.copied++ });
+    const newWish: CreateWishDto = {
+      name: wish.name,
+      link: wish.link,
+      image: wish.image,
+      price: wish.price,
+      description: wish.description,
+    };
+    return await this.create(newWish, userId);
   }
 }

@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateOfferDto } from './dto/create-offer.dto';
-import { UpdateOfferDto } from './dto/update-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WishesService } from '../wishes/wishes.service';
@@ -18,6 +17,18 @@ export class OffersService {
   async create(createOfferDto: CreateOfferDto, userId) {
     const user = await this.usersService.findOne(userId);
     const item = await this.wishesService.findOne(createOfferDto.itemId);
+    if (item.owner.id === userId) {
+      throw new BadRequestException(
+        'Нельзя скидываться на собственные подарки',
+      );
+    }
+    const itemRaised = item.raised + createOfferDto.amount;
+    if (itemRaised > item.price) {
+      throw new BadRequestException(
+        'Сумма собранных средств не может превышать стоимость подарка',
+      );
+    }
+    await this.wishesService.update(item.id, { raised: itemRaised });
     const offer = await this.offersRepository.create({
       ...createOfferDto,
       user,
@@ -26,19 +37,14 @@ export class OffersService {
     return await this.offersRepository.save(offer);
   }
 
+  async findAll() {
+    return await this.offersRepository.find({ relations: ['user', 'item'] });
+  }
+
   async findOne(id: number) {
     return await this.offersRepository.findOne({
       where: { id },
       relations: ['user', 'item'],
     });
-  }
-  async update(id: number, updateOfferDto: UpdateOfferDto) {
-    await this.offersRepository.update(id, updateOfferDto);
-    return this.findOne(id);
-  }
-
-  async remove(id: number) {
-    const offer = await this.findOne(id);
-    return await this.offersRepository.remove(offer);
   }
 }

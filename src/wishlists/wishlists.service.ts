@@ -15,12 +15,8 @@ export class WishlistsService {
     private usersService: UsersService,
     private wishesService: WishesService,
   ) {}
-  async create(
-    createWishlistDto: CreateWishlistDto,
-    itemsId: number[],
-    userId,
-  ) {
-    const items = await this.wishesService.findByIds(itemsId);
+  async create(createWishlistDto: CreateWishlistDto, userId) {
+    const items = await this.wishesService.findByIds(createWishlistDto.itemsId);
     const user = await this.usersService.findOne(userId);
     const wishlist = await this.wishlistsRepository.create({
       ...createWishlistDto,
@@ -28,6 +24,11 @@ export class WishlistsService {
       owner: user,
     });
     return await this.wishlistsRepository.save(wishlist);
+  }
+  async findAll() {
+    return await this.wishlistsRepository.find({
+      relations: ['items', 'owner'],
+    });
   }
 
   async findOne(id: number) {

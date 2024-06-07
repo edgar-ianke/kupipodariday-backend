@@ -5,7 +5,6 @@ import { BaseEntity } from '../../common/base.entity';
 
 @Entity()
 export class Offer extends BaseEntity {
-  @Column()
   @ManyToOne(() => User, (user) => user.offers)
   user: User;
 

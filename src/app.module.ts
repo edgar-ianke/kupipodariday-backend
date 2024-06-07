@@ -9,17 +9,21 @@ import { Wishlist } from './wishlists/entities/wishlist.entity';
 import { Offer } from './offers/entities/offer.entity';
 import { Wish } from './wishes/entities/wish.entity';
 import { User } from './users/entities/user.entity';
-import { AuthService } from './auth1/auth.service';
+import { HashModule } from './hash/hash.module';
+import { ConfigModule } from '@nestjs/config';
+import jwtConfig from './config/jwt.config';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true, load: [jwtConfig] }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: 'student',
-      password: 'student',
-      database: 'nest',
+      username: 'edgar',
+      password: 'edgar',
+      database: 'kupipodaridai',
       entities: [User, Wish, Offer, Wishlist],
       synchronize: true,
     }),
@@ -27,8 +31,10 @@ import { AuthService } from './auth1/auth.service';
     WishesModule,
     WishlistsModule,
     OffersModule,
+    HashModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AuthService],
+  providers: [],
 })
 export class AppModule {}
