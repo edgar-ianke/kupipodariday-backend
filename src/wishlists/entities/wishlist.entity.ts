@@ -12,10 +12,6 @@ export class Wishlist extends BaseEntity {
   name: string;
 
   @Column()
-  @MaxLength(1500)
-  description: string;
-
-  @Column()
   @IsUrl()
   image: string;
 

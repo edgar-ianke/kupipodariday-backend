@@ -4,28 +4,29 @@ import {
   IsUrl,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateWishDto {
   @MinLength(1)
   @MaxLength(250)
-  @IsNotEmpty()
+  @ValidateIf((o) => o.name !== undefined)
   name: string;
 
-  @IsNotEmpty()
   @IsUrl()
+  @ValidateIf((o) => o.link !== undefined)
   link: string;
 
-  @IsNotEmpty()
   @IsUrl()
+  @ValidateIf((o) => o.image !== undefined)
   image: string;
 
-  @IsNotEmpty()
   @IsNumber()
+  @ValidateIf((o) => o.price !== undefined)
   price: number;
 
-  @IsNotEmpty()
   @MinLength(1)
   @MaxLength(1024)
+  @ValidateIf((o) => o.description !== undefined)
   description: string;
 }

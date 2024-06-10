@@ -2,24 +2,27 @@ import {
   IsEmail,
   IsNotEmpty,
   IsOptional,
+  IsUrl,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsNotEmpty()
+  @ValidateIf((o) => o.username !== undefined)
   @MinLength(2)
   @MaxLength(30)
   username: string;
 
   @IsEmail()
-  @IsNotEmpty()
+  @ValidateIf((o) => o.email !== undefined)
   email: string;
 
-  @IsNotEmpty()
   password: string;
 
   @IsOptional()
+  @IsUrl()
+  @ValidateIf((o) => o.avatar !== undefined)
   avatar?: string;
 
   @IsOptional()

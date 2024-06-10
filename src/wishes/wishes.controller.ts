@@ -76,7 +76,7 @@ export class WishesController {
     }
     return this.wishesService.remove(+id);
   }
-  @Patch(':id/copy')
+  @Post(':id/copy')
   @UseGuards(JwtAuthGuard)
   copy(@Param('id') id: string, @Req() req: Request & { user: User }) {
     return this.wishesService.copyWish(+id, req.user.id);

@@ -62,7 +62,10 @@ export class UsersService {
   }
 
   async getUserWishes(username: string) {
-    const user = await this.findByName(username);
+    const user = await this.userRepository.findOne({
+      where: { username },
+      relations: ['wishes', 'offers', 'wishlists'],
+    });
     return user.wishes;
   }
 }
