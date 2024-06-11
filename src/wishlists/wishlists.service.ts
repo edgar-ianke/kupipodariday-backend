@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { UpdateWishlistDto } from './dto/update-wishlist.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -38,7 +38,11 @@ export class WishlistsService {
     });
   }
 
-  async update(id: number, updateWishlistDto: UpdateWishlistDto) {
+  async update(id: number, updateWishlistDto: UpdateWishlistDto, userId) {
+    const wishlist = await this.findOne(id);
+    if (wishlist.owner.id !== userId) {
+      throw new ForbiddenException('У вас нет прав на данную операцию');
+    }
     await this.wishlistsRepository.update(id, updateWishlistDto);
     return this.findOne(id);
   }

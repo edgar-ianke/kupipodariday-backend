@@ -41,16 +41,12 @@ export class WishlistsController {
   }
 
   @Patch(':id')
-  async update(
+  update(
     @Param('id') id: string,
     @Req() req: Request & { user: User },
     @Body() updateWishlistDto: UpdateWishlistDto,
   ) {
-    const wishlist = await this.wishlistsService.findOne(+id);
-    if (wishlist.owner.id !== req.user.id) {
-      throw new ForbiddenException('У вас нет прав на данную операцию');
-    }
-    return this.wishlistsService.update(+id, updateWishlistDto);
+    return this.wishlistsService.update(+id, updateWishlistDto, req.user.id);
   }
 
   @Delete(':id')

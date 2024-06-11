@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { HashService } from '../hash/hash.service';
 
 @Injectable()
@@ -50,9 +50,19 @@ export class UsersService {
       const newPassword = await this.hashService.hashPassword(
         updateUserDto.password,
       );
+
       updateUserDto.password = newPassword;
     }
-    await this.userRepository.update(id, updateUserDto);
+    try {
+      await this.userRepository.update(id, updateUserDto);
+    } catch (err) {
+      if (err instanceof QueryFailedError) {
+        if (err.driverError.code === '23505') {
+          throw new ConflictException('Логин или почта уже заняты');
+        }
+      }
+    }
+
     return this.findOne(id);
   }
 

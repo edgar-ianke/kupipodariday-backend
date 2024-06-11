@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/entities/user.entity';
@@ -23,10 +23,10 @@ export class AuthService {
         delete user.password;
         return user;
       } else {
-        return null;
+        throw new UnauthorizedException('Неверные логин или пароль');
       }
     }
-    return null;
+    throw new UnauthorizedException('Неверные логин или пароль');
   }
   async login(user: User) {
     const payload = { username: user.username, sub: user.id };
